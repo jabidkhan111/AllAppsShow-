@@ -1,0 +1,41 @@
+
+public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
+
+    public List<ApplicationInfo> appList;
+    public PackageManager packageManager;
+
+    public AppAdapter(PackageManager packageManager, List<ApplicationInfo> appList) {
+        this.packageManager = packageManager;
+        this.appList = appList;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_app, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        ApplicationInfo appInfo = appList.get(position);
+        holder.appNameTextView.setText(packageManager.getApplicationLabel(appInfo));
+        holder.appIconImageView.setImageDrawable(packageManager.getApplicationIcon(appInfo));
+    }
+
+    @Override
+    public int getItemCount() {
+        return appList.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView appNameTextView;
+        ImageView appIconImageView;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            appNameTextView = itemView.findViewById(R.id.appName);
+            appIconImageView = itemView.findViewById(R.id.appIcon);
+        }
+    }
+}

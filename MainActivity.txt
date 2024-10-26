@@ -1,0 +1,38 @@
+
+public class MainActivity extends AppCompatActivity {
+    public RecyclerView recyclerView;
+    private AppAdapter appAdapter;
+    private List<ApplicationInfo> appList;
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        appList = new ArrayList<>();
+        appAdapter = new AppAdapter(getPackageManager(), appList);
+        recyclerView.setAdapter(appAdapter);
+
+        loadInstalledApps();
+    }
+
+    private void loadInstalledApps() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            PackageManager packageManager = getPackageManager();
+
+            Intent launcherIntent = new Intent(Intent.ACTION_MAIN);
+            launcherIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+            List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(launcherIntent, 0);
+            appList.clear();
+            for (ResolveInfo resolveInfo : resolveInfos) {
+                ApplicationInfo appInfo = resolveInfo.activityInfo.applicationInfo;
+                appList.add(appInfo);
+            }
+            appList.sort((a, b) -> packageManager.getApplicationLabel(a).toString()
+                    .compareToIgnoreCase(packageManager.getApplicationLabel(b).toString()));
+            runOnUiThread(appAdapter::notifyDataSetChanged);
+        });
+    }
+}
